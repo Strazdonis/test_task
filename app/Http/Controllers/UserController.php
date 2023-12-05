@@ -6,6 +6,7 @@ use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -126,6 +127,37 @@ class UserController extends Controller
             $users = User::with("userDetails")->get();
 
             return response()->json(["success" => true, "data" => $users], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                "success" => false,
+                "message" => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Generate an API token for specified user
+     * @param Request $request
+     * @param string $userId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function authenticate(Request $request, $userId)
+    {
+        try {
+            $user = User::find($userId);
+
+            if (!$user) {
+                return response()->json([
+                    "success" => false,
+                    "message" => "User not found"
+                ], Response::HTTP_NOT_FOUND);
+            }
+            $token = $user->createToken($request->token_name);
+
+            return response()->json([
+                "success" => true,
+                "data" => $token->plainTextToken,
+            ], Response::HTTP_OK);
         } catch (Exception $e) {
             return response()->json([
                 "success" => false,
