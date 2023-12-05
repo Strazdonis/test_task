@@ -6,7 +6,6 @@ use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -63,7 +62,9 @@ class UserController extends Controller
                 $user->userDetails->delete();
             }
 
-            return response()->json(["success" => true, "data" => $user], Response::HTTP_OK);
+            $userWithDetails = User::find($userId)->with("userDetails")->first();
+
+            return response()->json(["success" => true, "data" => $userWithDetails], Response::HTTP_OK);
         } catch (Exception $e) {
             return response()->json([
                 "success" => false,
