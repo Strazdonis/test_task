@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UserAuthenticationRequest;
 use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -136,14 +136,13 @@ class UserController extends Controller
 
     /**
      * Generate an API token for specified user
-     * @param Request $request
-     * @param string $userId
+     * @param UserAuthenticationRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function authenticate(Request $request, $userId)
+    public function authenticate(UserAuthenticationRequest $request)
     {
         try {
-            $user = User::find($userId);
+            $user = User::where("email", $request->email)->first();
 
             if (!$user) {
                 return response()->json([
@@ -151,6 +150,15 @@ class UserController extends Controller
                     "message" => "User not found"
                 ], Response::HTTP_NOT_FOUND);
             }
+
+            // check if the password is correct
+            if (!password_verify($request->password, $user->password)) {
+                return response()->json([
+                    "success" => false,
+                    "message" => "Incorrect password"
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
             $token = $user->createToken($request->token_name);
 
             return response()->json([

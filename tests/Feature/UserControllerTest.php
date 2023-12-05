@@ -20,11 +20,15 @@ class UserControllerTest extends TestCase
         $this->faker = FakerFactory::create();
     }
 
-    public function auth($id): string
+    public function auth($user): string
     {
-        $response = $this->postJson("/api/users/auth/{$id}", [
+        $response = $this->postJson("/api/users/auth/", [
+            "email" => $user->email,
+            "password" => 'password',
             'token_name' => 'tests',
         ]);
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJsonFragment(['success' => true]);
         return $response->json('data');
     }
 
@@ -78,7 +82,7 @@ class UserControllerTest extends TestCase
     {
         $address = $this->faker->address;
         $user = User::factory()->withAddress($address)->create();
-        $token = $this->auth($user->id);
+        $token = $this->auth($user);
 
         $data = [
             'first_name' => $this->faker->firstName,
@@ -106,7 +110,7 @@ class UserControllerTest extends TestCase
         $address = $this->faker->address;
         $oldEmail = $this->faker->unique()->safeEmail;
         $user = User::factory()->withAddress($address)->create(['email' => $oldEmail]);
-        $token = $this->auth($user->id);
+        $token = $this->auth($user);
 
         $data = [
             'first_name' => $this->faker->firstName,
@@ -134,7 +138,7 @@ class UserControllerTest extends TestCase
     public function it_can_delete_user_with_details()
     {
         $user = User::factory()->withAddress('address')->create();
-        $token = $this->auth($user->id);
+        $token = $this->auth($user);
 
         $response = $this->deleteJson("/api/users/{$user->id}", [], [
             'Authorization' => 'Bearer ' . $token,
