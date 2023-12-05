@@ -45,4 +45,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserDetails::class);
     }
+
+    protected $appends = ['address'];
+
+    public function getAddressAttribute()
+    {
+        return $this->userDetails()->first()?->address;
+    }
 }

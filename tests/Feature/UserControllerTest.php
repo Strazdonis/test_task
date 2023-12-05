@@ -20,6 +20,14 @@ class UserControllerTest extends TestCase
         $this->faker = FakerFactory::create();
     }
 
+    public function auth($id): string
+    {
+        $response = $this->postJson("/api/users/auth/{$id}", [
+            'token_name' => 'tests',
+        ]);
+        return $response->json('data');
+    }
+
     /** @test */
     public function it_can_create_user_without_details()
     {
@@ -70,6 +78,7 @@ class UserControllerTest extends TestCase
     {
         $address = $this->faker->address;
         $user = User::factory()->withAddress($address)->create();
+        $token = $this->auth($user->id);
 
         $data = [
             'first_name' => $this->faker->firstName,
@@ -78,7 +87,9 @@ class UserControllerTest extends TestCase
             'password' => 'updated',
         ];
 
-        $response = $this->putJson("/api/users/{$user->id}", $data);
+        $response = $this->putJson("/api/users/{$user->id}", $data, [
+            'Authorization' => 'Bearer ' . $token,
+        ]);
 
         $response->assertStatus(Response::HTTP_OK)
             ->assertJsonFragment(["success" => true])
@@ -95,6 +106,7 @@ class UserControllerTest extends TestCase
         $address = $this->faker->address;
         $oldEmail = $this->faker->unique()->safeEmail;
         $user = User::factory()->withAddress($address)->create(['email' => $oldEmail]);
+        $token = $this->auth($user->id);
 
         $data = [
             'first_name' => $this->faker->firstName,
@@ -104,7 +116,9 @@ class UserControllerTest extends TestCase
             'address' => $this->faker->address,
         ];
 
-        $response = $this->putJson("/api/users/{$user->id}", $data);
+        $response = $this->putJson("/api/users/{$user->id}", $data, [
+            'Authorization' => 'Bearer ' . $token,
+        ]);
 
         $response->assertStatus(Response::HTTP_OK)
             ->assertJsonFragment(['success' => true])
@@ -120,8 +134,11 @@ class UserControllerTest extends TestCase
     public function it_can_delete_user_with_details()
     {
         $user = User::factory()->withAddress('address')->create();
+        $token = $this->auth($user->id);
 
-        $response = $this->deleteJson("/api/users/{$user->id}");
+        $response = $this->deleteJson("/api/users/{$user->id}", [], [
+            'Authorization' => 'Bearer ' . $token,
+        ]);
 
         $response->assertStatus(Response::HTTP_OK)
             ->assertJsonFragment(['success' => true]);
@@ -147,9 +164,7 @@ class UserControllerTest extends TestCase
                         'first_name',
                         'last_name',
                         'email',
-                        'user_details' => [
-                            'address',
-                        ],
+                        'address',
                     ],
                 ],
             ]);

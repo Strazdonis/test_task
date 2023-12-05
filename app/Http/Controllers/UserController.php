@@ -27,9 +27,7 @@ class UserController extends Controller
                 $user->userDetails()->create(["address" => $request->input("address")]);
             }
 
-            $userWithDetails = User::where("email", $request->input("email"))->with("userDetails")->first();
-
-            return response()->json(["success" => true, "data" => $userWithDetails], Response::HTTP_CREATED);
+            return response()->json(["success" => true, "data" => $user], Response::HTTP_CREATED);
         } catch (Exception $e) {
             return response()->json([
                 "success" => false,
@@ -63,9 +61,10 @@ class UserController extends Controller
                 $user->userDetails->delete();
             }
 
-            $userWithDetails = User::find($userId)->with("userDetails")->first();
+            // remove user_details from the response
+            $user->unsetRelation("userDetails");
 
-            return response()->json(["success" => true, "data" => $userWithDetails], Response::HTTP_OK);
+            return response()->json(["success" => true, "data" => $user], Response::HTTP_OK);
         } catch (Exception $e) {
             return response()->json([
                 "success" => false,
@@ -124,7 +123,7 @@ class UserController extends Controller
     public function list()
     {
         try {
-            $users = User::with("userDetails")->get();
+            $users = User::all();
 
             return response()->json(["success" => true, "data" => $users], Response::HTTP_OK);
         } catch (Exception $e) {
