@@ -102,3 +102,8 @@
     "address": string | null
     }
     ```
+- Routes can also respond with an error object as well, if the input is incorrect (from laravel request validation):
+    ```js
+        "message": string, // error message
+        "errors" { field: [...errors] } // all errors per field.
+    ```
