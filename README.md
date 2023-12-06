@@ -2,7 +2,7 @@
 
 -   GET `/api/users` - list all users
     -   Response:
-    ```php
+    ```js
       {
           "success": boolean,
           "data": [...users]
@@ -10,7 +10,7 @@
     ```
 -   POST `/api/users` - create user
     -   Expected input:
-        ```php
+        ```js
             {
                 "first_name": string,
                 "last_name": string,
@@ -20,7 +20,7 @@
             }
         ```
     -   Response:
-        ```php
+        ```js
         {
             "success": boolean,
             "data": created_user
@@ -31,7 +31,7 @@
     -   **Use Token from `/api/users/auth` as a Bearer token in headers.**
     -   Expected input:
 
-        ```php
+        ```js
             {
                 "first_name": string,
                 "last_name": string,
@@ -42,7 +42,7 @@
         ```
 
     -   Response:
-        ```php
+        ```js
         {
             "success": boolean,
             "data": updated_user
@@ -52,7 +52,7 @@
 -   DELETE `/api/users/{user_id}` - delete user with id `user_id` (only with API key)
     -   **Use Token from `/api/users/auth` as a Bearer token in headers.**
     -   Reponse:
-        ```php
+        ```js
         {
             "success": boolean,
             "message": string
@@ -60,7 +60,7 @@
         ```
 -   POST `/api/users/auth` - authenticate - returns an API key
     -   Expected input:
-        ```php
+        ```js
         {
             "email": string,
             "password": string,
@@ -68,7 +68,7 @@
         }
         ```
     -   Response:
-        ```php
+        ```js
         {
             "success": boolean,
             "data": string // generated token
@@ -77,7 +77,7 @@
 -   GET `/api/user` - returns authenticated user (only with API key)
     -   **Use Token from `/api/users/auth` as a Bearer token in headers.**
     -   Response:
-        ```php
+        ```js
         {
             ...authenticated_user
         }
@@ -91,7 +91,7 @@
 
 - **User object:**
 
-    ```php
+    ```js
     {
     "id": integer,
     "first_name": string,
